@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-public class TaskController {
+class TaskController {
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
     private final TaskRepository repository;
 
@@ -24,7 +24,7 @@ public class TaskController {
     @PostMapping("/tasks")
     ResponseEntity<Task> createTask(@RequestBody @Valid Task toCreate){
         Task result = repository.save(toCreate);
-        return ResponseEntity.created(URI.create("/" + result.getId())).body(result);
+        return ResponseEntity.created(URI.create( "/" + result.getId())).body(result);
     }
 
     @GetMapping(value = "/tasks", params = {"!sort", "!page", "!size"})
@@ -46,10 +46,23 @@ public class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/tasks/{id}")
+    ResponseEntity<?> updateTask(@PathVariable int id, @RequestBody @Valid Task toUpdate){
+        if (!repository.existsById(id)){
+            return ResponseEntity.notFound().build();
+        }
+        repository.findById(id)
+                .ifPresent(task -> {
+                    task.updateFrom(toUpdate);
+                    repository.save(task);
+    });
+        return ResponseEntity.noContent().build();
+    }
+
     @Transactional
     @PatchMapping("/tasks/{id}")
-    public ResponseEntity<?> toggleTask(@PathVariable("id") int id){
-        if(repository.existsById(id)){
+    public ResponseEntity<?> toggleTask(@PathVariable int id){
+        if(!repository.existsById(id)){
             return ResponseEntity.notFound().build();
         }
         repository.findById(id)
