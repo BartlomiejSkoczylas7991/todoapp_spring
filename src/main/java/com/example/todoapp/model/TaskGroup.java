@@ -18,7 +18,9 @@ public class TaskGroup {
     private boolean done;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "group")
     private Set<Task> tasks;
-
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
     public TaskGroup(){
     }
 
@@ -55,7 +57,15 @@ public class TaskGroup {
         return tasks;
     }
 
-    void setTasks(final Set<Task> tasks) {
+    public void setTasks(final Set<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(final Project project) {
+        this.project = project;
     }
 }
